@@ -289,9 +289,17 @@ func main() {
 
 	//Show all list in memory //DEBUG
 	// Iterate the list
+	CityType := 0
+	DefenceType := 0
 	for e := ListTargets.Front(); e != nil; e = e.Next() {
 		itemTarget := Target(e.Value.(Target))
 		shell.Println("Name: " + itemTarget.name + " Abbr.: " + itemTarget.abbreviation + " Lat: " + strconv.FormatFloat(itemTarget.lat, 'f', 5, 64) + " Long: " + strconv.FormatFloat(itemTarget.long, 'f', 5, 64))
+		if itemTarget.targetype == "C" {
+			CityType = CityType + 1
+		}
+		if itemTarget.targetype == "D" {
+			DefenceType = DefenceType + 1
+		}
 	}
 
 	//Choose a random target in ListTarget
@@ -300,7 +308,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	//Primary target.
-	SelectTarget := rand.Intn(ListTargets.Len() + 1)
+	SelectTarget := rand.Intn(CityType + 1)
 	shell.Printf("Number selected: %d\n", SelectTarget)
 	i := 0
 	for e := ListTargets.Front(); e != nil; e = e.Next() {
