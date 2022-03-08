@@ -32,8 +32,10 @@ Max Speed: Mach 2.3 at 50,000 feet (1,450 mph / 1,259 knots)
 Cruise speed: 560 mph (487 knots) to 650 mph (1040 Km/H / 560 Kt) 0.28 Km/sec
 */
 const CRUISE_SPEED float32 = 1040.0
-const MAX_FUEL = 12326.0             //https://www.boeing.com/defense/b-1b-bomber/
+const MAX_FUEL = 120326.0            //https://www.boeing.com/defense/b-1b-bomber/
 const ProbabilityOfKillSam200 = 0.85 //https://en.wikipedia.org/wiki/S-200_(missile)
+const MAX_ALTITUDE = 18000.0         //Cealing More than 30,000 ft (9,144 m)
+const MIN_ALTITUDE = 80.0            //80 m
 
 /*
 https://en.wikipedia.org/wiki/Probability_of_kill
@@ -103,6 +105,10 @@ func StringToInt(data string) int {
 	return n
 }
 
+func IntToString(n int) string {
+	return strconv.Itoa(n)
+}
+
 func StringToFloat32(data string) float32 {
 	if s, err := strconv.ParseFloat(data, 32); err == nil {
 		return float32(s)
@@ -166,8 +172,8 @@ func CheckB1Status() string {
 	s := fmt.Sprintf("Present status:\n")
 	s = s + fmt.Sprintf("Lat: %f\n", b1.lat)
 	s = s + fmt.Sprintf("Long: %f\n", b1.long)
-	s = s + fmt.Sprintf("Course: %f\n", b1.bearing)
-	s = s + fmt.Sprintf("Fuel: %d\n", b1.fuel)
+	s = s + fmt.Sprintf("Course: %f\n T", b1.bearing)
+	s = s + fmt.Sprintf("Fuel: %d\n Kg", b1.fuel)
 	s = s + fmt.Sprintf("Speed: %.2f Km/H\n", b1.speed)
 	s = s + fmt.Sprintf("Altitude: %d m\n", b1.altitude)
 	s = s + fmt.Sprintf("DeltaT time game: %s\n", DeltaT.String()) //DEBUG
@@ -293,6 +299,7 @@ func main() {
 	DefenceType := 0
 	for e := ListTargets.Front(); e != nil; e = e.Next() {
 		itemTarget := Target(e.Value.(Target))
+		//DEBUG
 		shell.Println("Name: " + itemTarget.name + " Abbr.: " + itemTarget.abbreviation + " Lat: " + strconv.FormatFloat(itemTarget.lat, 'f', 5, 64) + " Long: " + strconv.FormatFloat(itemTarget.long, 'f', 5, 64))
 		if itemTarget.targetype == "C" {
 			CityType = CityType + 1
@@ -387,8 +394,14 @@ func main() {
 		Help: "(Abbreviation) Change altitude",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) > 0 {
-				b1.altitude = StringToInt(c.Args[0])
-				c.Println(CheckB1Status())
+				if StringToInt(c.Args[0]) > MAX_ALTITUDE {
+					c.Printf("MAX Ceiling is: %s\n m", IntToString(MAX_ALTITUDE))
+				} else if StringToInt(c.Args[0]) < MIN_ALTITUDE {
+					c.Println("Min altitude is %s\n m", IntToString((MIN_ALTITUDE)))
+				} else {
+					b1.altitude = StringToInt(c.Args[0])
+					c.Println(CheckB1Status())
+				}
 			} else {
 				c.Println("Please, insert your new altitude")
 			}
@@ -400,8 +413,14 @@ func main() {
 		Help: "Change altitude",
 		Func: func(c *ishell.Context) {
 			if len(c.Args) > 0 {
-				b1.altitude = StringToInt(c.Args[0])
-				c.Println(CheckB1Status())
+				if StringToInt(c.Args[0]) > MAX_ALTITUDE {
+					c.Printf("MAX Ceiling is: %s\n m", IntToString(MAX_ALTITUDE))
+				} else if StringToInt(c.Args[0]) < MIN_ALTITUDE {
+					c.Println("Min altitude is %s\n m", IntToString((MIN_ALTITUDE)))
+				} else {
+					b1.altitude = StringToInt(c.Args[0])
+					c.Println(CheckB1Status())
+				}
 			} else {
 				c.Println("Please, insert your new altitude")
 			}
