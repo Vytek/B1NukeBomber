@@ -16,3 +16,11 @@ At altitude: Mach 1.25 (721 knots, 830 mph, 1,340 km/h at 50,000 ft/15,000 m alt
 At low level: Mach 0.92 (700 mph, 1,130 km/h at 200–500 ft/60–150 m altitude)
 Range: 6,478 nmi (7,456 mi, 11,998 km)
 Combat radius: 2,993 nmi (3,445 mi, 5,543 km)
+
+10.12 08/03/2022
+
+https://www.grc.nasa.gov/www/k-12/BGP/Devon/range_fuel_act.htm
+
+Il Lancer può trasportare ben 114.490 litri di combustibile, che gli garantiscono un'autonomia di oltre 12.000 km. Inoltre, può trasportare anche un serbatoio ausiliario interno, capace di ulteriori 10.515 litri.
+
+https://it.wikipedia.org/wiki/Rockwell_B-1_Lancer
