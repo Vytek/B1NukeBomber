@@ -1,0 +1,18 @@
+09.02 08/03/2022
+
+- ADD FUEL SYSTEM
+- ADD SAM SYSTEM ENGAGEMENT: DEPEND ON BOMBER ALTITUDE
+
+https://military-history.fandom.com/wiki/Rockwell_B-1_Lancer
+
+Fuel Capacity	265,274 lbs (120,326 kg) (https://www.boeing.com/defense/b-1b-bomber/)
+
+A B-1B bomber consumes about 250,000 pounds/hour at sea level full afterburner and roughly 20,000 pounds/hour at cruise
+
+Fuel capacity, optional: 10,000 U.S. gal (38,000 L) fuel tank for 1–3 internal weapons bays each
+Performance
+Maximum speed:
+At altitude: Mach 1.25 (721 knots, 830 mph, 1,340 km/h at 50,000 ft/15,000 m altitude)
+At low level: Mach 0.92 (700 mph, 1,130 km/h at 200–500 ft/60–150 m altitude)
+Range: 6,478 nmi (7,456 mi, 11,998 km)
+Combat radius: 2,993 nmi (3,445 mi, 5,543 km)
