@@ -170,7 +170,7 @@ func CheckB1Status() string {
 	s = s + fmt.Sprintf("Fuel: %d\n", b1.fuel)
 	s = s + fmt.Sprintf("Speed: %.2f Km/H\n", b1.speed)
 	s = s + fmt.Sprintf("Altitude: %d m\n", b1.altitude)
-	s = s + fmt.Sprintf("DeltaT time game: %s\n", DeltaT.String())
+	s = s + fmt.Sprintf("DeltaT time game: %s\n", DeltaT.String()) //DEBUG
 	if b1.ecm {
 		s = s + fmt.Sprintf("ECM: ON\n")
 	} else {
