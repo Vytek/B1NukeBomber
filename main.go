@@ -21,7 +21,7 @@ import (
 	"github.com/scylladb/termtables"
 )
 
-const VERSION string = "0.3"
+const VERSION string = "0.4"
 
 //Thule Air Base
 //{"DD":{"lat":76.52533,"lng":-68.702},"DMS":{"lat":"76º31'31.19\" N","lng":"68º42'7.19\" W"},"geohash":"fmx5keh8r7","UTM":"19X 507751.39524828 8493824.41212883"}
@@ -36,6 +36,7 @@ const MAX_FUEL = 120326.0            //https://www.boeing.com/defense/b-1b-bombe
 const ProbabilityOfKillSam200 = 0.85 //https://en.wikipedia.org/wiki/S-200_(missile)
 const MAX_ALTITUDE = 18000.0         //Cealing More than 30,000 ft (9,144 m)
 const MIN_ALTITUDE = 80.0            //80 m
+const FUEL_CONSUMPTION = 2.51        //Kg/sec
 
 /*
 https://en.wikipedia.org/wiki/Probability_of_kill
@@ -125,6 +126,14 @@ func StringToFloat64(data string) float64 {
 	}
 }
 
+//https://stackoverflow.com/a/37247762
+func round(val float64) int {
+	if val < 0 {
+		return int(val - 0.5)
+	}
+	return int(val + 0.5)
+}
+
 //https://go.dev/play/p/Q-Ufgrw3vZL
 func DDHHMMZ() string {
 	current_time := time.Now().UTC()
@@ -160,6 +169,7 @@ func Moving() {
 	DeltaT = Tnew.Sub(T0)
 	T0 = Tnew
 	DistanceNew := float32(DeltaT.Seconds()) * (b1.speed / 3600) //Km/sec
+	b1.fuel = b1.fuel - round(DeltaT.Seconds()*FUEL_CONSUMPTION)
 	p_b1 := geo.NewPoint(b1.lat, b1.long)
 	p_b1_new := p_b1.PointAtDistanceAndBearing(float64(DistanceNew), float64(b1.bearing))
 	b1.lat = p_b1_new.Lat()
