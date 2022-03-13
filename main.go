@@ -169,7 +169,7 @@ func Moving() {
 	DeltaT = Tnew.Sub(T0)
 	T0 = Tnew
 	DistanceNew := float32(DeltaT.Seconds()) * (b1.speed / 3600) //Km/sec
-	b1.fuel = b1.fuel - round(DeltaT.Seconds()*FUEL_CONSUMPTION)
+	b1.fuel = b1.fuel - round(DeltaT.Seconds()*FUEL_CONSUMPTION*float64(b1.speed/CRUISE_SPEED))
 	p_b1 := geo.NewPoint(b1.lat, b1.long)
 	p_b1_new := p_b1.PointAtDistanceAndBearing(float64(DistanceNew), float64(b1.bearing))
 	b1.lat = p_b1_new.Lat()
@@ -182,8 +182,8 @@ func CheckB1Status() string {
 	s := fmt.Sprintf("Present status:\n")
 	s = s + fmt.Sprintf("Lat: %f\n", b1.lat)
 	s = s + fmt.Sprintf("Long: %f\n", b1.long)
-	s = s + fmt.Sprintf("Course: %f\n T", b1.bearing)
-	s = s + fmt.Sprintf("Fuel: %d\n Kg", b1.fuel)
+	s = s + fmt.Sprintf("Course: %f T\n", b1.bearing)
+	s = s + fmt.Sprintf("Fuel: %d Kg\n", b1.fuel)
 	s = s + fmt.Sprintf("Speed: %.2f Km/H\n", b1.speed)
 	s = s + fmt.Sprintf("Altitude: %d m\n", b1.altitude)
 	s = s + fmt.Sprintf("DeltaT time game: %s\n", DeltaT.String()) //DEBUG
