@@ -37,6 +37,7 @@ const ProbabilityOfKillSam200 = 0.85 //https://en.wikipedia.org/wiki/S-200_(miss
 const MAX_ALTITUDE = 18000.0         //Cealing More than 30,000 ft (9,144 m)
 const MIN_ALTITUDE = 80.0            //80 m
 const FUEL_CONSUMPTION = 2.51        //Kg/sec
+const RCS = 0.75                     //m^2 //https://www.globalsecurity.org/military/world/stealth-aircraft-rcs.htm
 
 /*
 https://en.wikipedia.org/wiki/Probability_of_kill
@@ -220,6 +221,29 @@ func Navigation(data string) string {
 				if itemTarget.name == data || itemTarget.abbreviation == data {
 					table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing))
 				}
+			}
+		}
+	}
+	return table.Render()
+}
+
+func Radar() string {
+	Moving()
+	table := termtables.CreateTable()
+	table.AddHeaders("Target Name", "Target Abbr.", "Distance", "Course")
+	p_b1 := geo.NewPoint(b1.lat, b1.long)
+	for e := ListTargets.Front(); e != nil; e = e.Next() {
+		itemTarget := Target(e.Value.(Target))
+		if itemTarget.targetype == "D" {
+			p_target := geo.NewPoint(itemTarget.lat, itemTarget.long)
+			dist := p_b1.GreatCircleDistance(p_target)
+			bearing := p_b1.BearingTo(p_target)
+			//Fix: https://github.com/rbsns/golang-geo/commit/8004ce49479db5787a6cab51b37b38e9ce052ca5
+			if bearing < 0. {
+				bearing = 360. + bearing
+				// ADD IF CONDITION
+				//s = s + fmt.Sprintf("Name: "+itemTarget.name+" Abbr.: "+itemTarget.abbreviation+" Dist.: %.2f Km\n", dist)
+				table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing))
 			}
 		}
 	}
@@ -460,6 +484,14 @@ func main() {
 			} else {
 				c.Println("Please, insert your new course")
 			}
+		},
+	})
+
+	shell.AddCmd(&ishell.Cmd{
+		Name: "radar",
+		Help: "Check radar",
+		Func: func(c *ishell.Context) {
+			c.Println(Radar())
 		},
 	})
 
