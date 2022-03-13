@@ -495,6 +495,14 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "ra",
+		Help: "(Abbreviation) Check radar",
+		Func: func(c *ishell.Context) {
+			c.Println(Radar())
+		},
+	})
+
 	// run shell
 	shell.Run()
 }
