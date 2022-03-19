@@ -36,6 +36,7 @@ const MAX_FUEL = 120326.0            //https://www.boeing.com/defense/b-1b-bombe
 const ProbabilityOfKillSam200 = 0.85 //https://en.wikipedia.org/wiki/S-200_(missile)
 const MAX_ALTITUDE = 18000.0         //Cealing More than 30,000 ft (9,144 m)
 const MIN_ALTITUDE = 80.0            //80 m
+const MAX_RADAR_RANGE = 80           //50 miles circa 80 Km
 const FUEL_CONSUMPTION = 2.51        //Kg/sec
 const RCS = 0.75                     //m^2 //https://www.globalsecurity.org/military/world/stealth-aircraft-rcs.htm
 
@@ -48,6 +49,10 @@ is considered a "kill"; every number greater than 0.3 is considered a "no kill".
 When used many times in a simulation, the average result will be that 30% of the weapon/target engagements
 will be a kill and 70% will not be a kill.
 */
+
+//Radar: http://www.loneflyer.com/2015/05/09/b-1b-lancer-sistemi-difensivi/
+//https://www.aereimilitari.org/Aerei/B-1.htm
+//https://www.airforce-technology.com/projects/b-1b/
 
 //General var
 var T0 time.Time
@@ -170,7 +175,12 @@ func Moving() {
 	DeltaT = Tnew.Sub(T0)
 	T0 = Tnew
 	DistanceNew := float32(DeltaT.Seconds()) * (b1.speed / 3600) //Km/sec
-	b1.fuel = b1.fuel - round(DeltaT.Seconds()*FUEL_CONSUMPTION*float64(b1.speed/CRUISE_SPEED))
+	//Consume fuel
+	if b1.altitude >= 500 {
+		b1.fuel = b1.fuel - (round(DeltaT.Seconds() * FUEL_CONSUMPTION * float64(b1.speed/CRUISE_SPEED)))
+	} else {
+		b1.fuel = b1.fuel - (round(DeltaT.Seconds()*FUEL_CONSUMPTION*float64(b1.speed/CRUISE_SPEED)) - round(DeltaT.Seconds()*FUEL_CONSUMPTION*0.30))
+	}
 	p_b1 := geo.NewPoint(b1.lat, b1.long)
 	p_b1_new := p_b1.PointAtDistanceAndBearing(float64(DistanceNew), float64(b1.bearing))
 	b1.lat = p_b1_new.Lat()
@@ -232,6 +242,7 @@ func Radar() string {
 	table := termtables.CreateTable()
 	table.AddHeaders("Target Name", "Target Abbr.", "Distance", "Course")
 	p_b1 := geo.NewPoint(b1.lat, b1.long)
+	i := 0
 	for e := ListTargets.Front(); e != nil; e = e.Next() {
 		itemTarget := Target(e.Value.(Target))
 		if itemTarget.targetype == "D" {
@@ -243,11 +254,18 @@ func Radar() string {
 				bearing = 360. + bearing
 				// ADD IF CONDITION
 				//s = s + fmt.Sprintf("Name: "+itemTarget.name+" Abbr.: "+itemTarget.abbreviation+" Dist.: %.2f Km\n", dist)
-				table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing))
+				if dist <= MAX_RADAR_RANGE {
+					table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing))
+					i = i + 1
+				}
 			}
 		}
 	}
-	return table.Render()
+	if i > 0 {
+		return table.Render()
+	} else {
+		return "No contact on the radar"
+	}
 }
 
 func main() {
