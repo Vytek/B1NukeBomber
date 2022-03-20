@@ -277,6 +277,10 @@ func PwithTRadar(dist float64, altitude float64, DeltaT time.Duration) float64 {
 	return (1 - math.Exp(-c*float64(DeltaT)))
 }
 
+func PwithTRadarSAM() {
+	//TODO
+}
+
 func Radar() string {
 	Moving()
 	table := termtables.CreateTable()
