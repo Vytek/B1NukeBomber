@@ -111,6 +111,17 @@ func randSeq(n int) string {
 	return string(b)
 }
 
+//https://appliedgo.net/random/
+func Random64() float64 {
+	rand.Seed(time.Now().Unix())
+	return rand.Float64()
+}
+
+func Random32() float32 {
+	rand.Seed(time.Now().Unix())
+	return rand.Float32()
+}
+
 func StringToInt(data string) int {
 	n, _ := strconv.Atoi(data)
 	return n
