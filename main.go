@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -21,7 +22,7 @@ import (
 	"github.com/scylladb/termtables"
 )
 
-const VERSION string = "0.4"
+const VERSION string = "0.5"
 
 //Thule Air Base
 //{"DD":{"lat":76.52533,"lng":-68.702},"DMS":{"lat":"76º31'31.19\" N","lng":"68º42'7.19\" W"},"geohash":"fmx5keh8r7","UTM":"19X 507751.39524828 8493824.41212883"}
@@ -37,6 +38,8 @@ const ProbabilityOfKillSam200 = 0.85 //https://en.wikipedia.org/wiki/S-200_(miss
 const MAX_ALTITUDE = 18000.0         //Cealing More than 30,000 ft (9,144 m)
 const MIN_ALTITUDE = 80.0            //80 m
 const MAX_RADAR_RANGE = 80           //50 miles circa 80 Km
+const MAX_SPEED = 1480.0             //Velocità max	1,2 Ma(1 480 km/h in quota)
+const MIN_SPEED = 965.606            //https://www.globalsecurity.org/wmd/systems/b-1b-specs.htm
 const FUEL_CONSUMPTION = 2.51        //Kg/sec
 const RCS = 0.75                     //m^2 //https://www.globalsecurity.org/military/world/stealth-aircraft-rcs.htm
 
@@ -58,6 +61,7 @@ will be a kill and 70% will not be a kill.
 var T0 time.Time
 var Tnew time.Time
 var DeltaT time.Duration
+var DeltaTDurationTotal time.Duration
 
 //Player B1 Bomber
 type bomber struct {
@@ -114,6 +118,20 @@ func StringToInt(data string) int {
 
 func IntToString(n int) string {
 	return strconv.Itoa(n)
+}
+
+func Float64ToString(f float64) string {
+	/** converting the f variable into a string */
+	/** 5 is the number of decimals */
+	/** 64 is for float64 type*/
+	return strconv.FormatFloat(f, 'f', 5, 64)
+}
+
+func Float32ToString(f float64) string {
+	/** converting the f variable into a string */
+	/** 5 is the number of decimals */
+	/** 32 is for float32 type*/
+	return strconv.FormatFloat(f, 'f', 5, 32)
 }
 
 func StringToFloat32(data string) float32 {
@@ -174,6 +192,7 @@ func Moving() {
 	Tnew = time.Now().UTC()
 	DeltaT = Tnew.Sub(T0)
 	T0 = Tnew
+	DeltaTDurationTotal = DeltaTDurationTotal + DeltaT
 	DistanceNew := float32(DeltaT.Seconds()) * (b1.speed / 3600) //Km/sec
 	//Consume fuel
 	if b1.altitude >= 500 {
@@ -204,6 +223,7 @@ func CheckB1Status() string {
 		s = s + fmt.Sprintf("ECM: OFF\n")
 	}
 	s = s + fmt.Sprintf("YOUR PRIMARY TARGET IS: (%s) %s\n", b1.targetAb, b1.target)
+	s = s + fmt.Sprintf("DeltaT total time game: %s\n", DeltaTDurationTotal.String()) //DEBUG
 	return s
 }
 
@@ -237,10 +257,20 @@ func Navigation(data string) string {
 	return table.Render()
 }
 
+//P(t) Radar B1
+//From: https://www.lulu.com/it/it/shop/jeffrey-strickland/mathematical-modeling-of-warfare-and-combat-phenomenon/hardcover/product-17gwewj8.html?page=1&pageSize=4
+//Page 156
+func PwithTRadar(dist float64, altitude float64, DeltaT time.Duration) float64 {
+	k := 1.0
+	c := (k * (altitude / (math.Pow(dist, 3.0))))
+	return (1 - math.Exp(-c*float64(DeltaT)))
+}
+
 func Radar() string {
 	Moving()
 	table := termtables.CreateTable()
-	table.AddHeaders("Target Name", "Target Abbr.", "Distance", "Course")
+	//table.AddHeaders("Target Name", "Target Abbr.", "Distance", "Course")
+	table.AddHeaders("Target Name", "Target Abbr.", "Distance", "Course", "P(t)")
 	p_b1 := geo.NewPoint(b1.lat, b1.long)
 	i := 0
 	for e := ListTargets.Front(); e != nil; e = e.Next() {
@@ -254,8 +284,9 @@ func Radar() string {
 				bearing = 360. + bearing
 				// ADD IF CONDITION
 				//s = s + fmt.Sprintf("Name: "+itemTarget.name+" Abbr.: "+itemTarget.abbreviation+" Dist.: %.2f Km\n", dist)
-				if dist <= MAX_RADAR_RANGE {
-					table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing))
+				//if dist <= MAX_RADAR_RANGE {
+				if true {
+					table.AddRow(itemTarget.name, itemTarget.abbreviation, fmt.Sprintf("%.2f Km", dist), fmt.Sprintf("%.2f", bearing), fmt.Sprintf("%.4f", PwithTRadar(dist*1000.0, float64(b1.altitude), DeltaTDurationTotal)))
 					i = i + 1
 				}
 			}
@@ -293,6 +324,7 @@ func main() {
 	shell.Println()
 
 	T0 = time.Now().UTC()
+	DeltaTDurationTotal = 0
 
 	//Calculate diff: https://golangbyexample.com/time-difference-between-two-time-value-golang/
 	shell.Println("T0 start time game: " + T0.String())
@@ -521,6 +553,24 @@ func main() {
 		},
 	})
 
+	shell.AddCmd(&ishell.Cmd{
+		Name: "speed",
+		Help: "Change speed",
+		Func: func(c *ishell.Context) {
+			if len(c.Args) > 0 {
+				if StringToFloat32(c.Args[0]) > MAX_SPEED {
+					c.Printf("MAX spedd is: %s\n m", Float32ToString(MAX_SPEED))
+				} else if StringToFloat32(c.Args[0]) < MIN_SPEED {
+					c.Println("Min altitude is %s\n m", Float32ToString((MIN_SPEED)))
+				} else {
+					b1.speed = StringToFloat32(c.Args[0])
+					c.Println(CheckB1Status())
+				}
+			} else {
+				c.Println("Please, insert your new speed")
+			}
+		},
+	})
 	// run shell
 	shell.Run()
 }
