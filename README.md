@@ -1,4 +1,4 @@
-# B1NukeBomber
+ B1NukeBomber
  B1 Nuclear Bomber simulation 
 
 ![B-1 Lancer](https://github.com/Vytek/B1NukeBomber/blob/main/docs/rockwell-b1b.gif)
@@ -11,3 +11,4 @@ From: AN ANALYTIC MODEL OF THE STRATEGIC BOMBER PENETRATION MISSION WITH VARIANC
 See: 
 - https://apps.dtic.mil/sti/citations/ADA115567
 - https://apps.dtic.mil/sti/citations/ADA115698
+- [Mathematical Modeling of Warfare and Combat Phenomenon](https://www.lulu.com/it/it/shop/jeffrey-strickland/mathematical-modeling-of-warfare-and-combat-phenomenon/hardcover/product-17gwewj8.html?page=1&pageSize=4)
